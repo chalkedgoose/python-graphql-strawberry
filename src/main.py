@@ -1,8 +1,9 @@
 import asyncio
 import strawberry
-from typing import AsyncIterable, List
+from typing import List
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
+from fastapi.middleware.cors import CORSMiddleware
 
 
 @strawberry.type
@@ -73,5 +74,19 @@ schema = strawberry.Schema(
 graphql_app = GraphQLRouter(schema)
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(graphql_app, prefix="/graphql")
