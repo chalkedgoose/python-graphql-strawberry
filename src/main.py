@@ -1,6 +1,6 @@
 import asyncio
 import strawberry
-from typing import List
+from typing import List, Optional
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,9 +38,9 @@ def get_books():
 @strawberry.type
 class Query:
     @strawberry.field
-    def books(self, title: str) -> List[Book]:
+    def books(self, title: Optional[str] = None) -> List[Book]:
 
-        if title:
+        if title is not None:
             return [book for book in get_books() if book.title == title]
 
         return get_books()
