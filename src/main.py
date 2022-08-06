@@ -4,59 +4,33 @@ from typing import List, Optional
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 from fastapi.middleware.cors import CORSMiddleware
-
-
-@strawberry.type
-class User:
-    name: str
-    age: int
-
-
-@strawberry.type
-class Book:
-    title: str
-    author: str
-
-
-def get_books():
-    return [
-        Book(
-            title='The Great Gatsby',
-            author='F. Scott Fitzgerald',
-        ),
-        Book(
-            title='Das Kapital',
-            author='Karl Marx'
-        ),
-        Book(
-            title='Animal Farm',
-            author='George Orwell'
-        )
-    ]
+from src.repositories.BookRepo import BookRepo
+from src.repositories.UserRepo import UserRepo
+from src.models.User import User
+from src.models.Book import Book
 
 
 @strawberry.type
 class Query:
     @strawberry.field
     def books(self, title: Optional[str] = None) -> List[Book]:
+        book_repo = BookRepo()
 
         if title is not None:
-            return [book for book in get_books() if book.title == title]
+            return book_repo.get_book_by_title(title)
 
-        return get_books()
+        return book_repo.get_books()
 
     @strawberry.field
-    def user(self) -> User:
-        x = self
-        v = "Carlos"
-        return User("Carlos", age=22)
+    def users(self) -> List[User]:
+        return UserRepo().get_users()
 
 
 @strawberry.type
 class Mutation:
     @strawberry.mutation
     def add_book(self, title: str, author: str) -> Book:
-        return Book(title=title, author=author)
+        return BookRepo().create_book(title, author)
 
 
 @strawberry.type
