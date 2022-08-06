@@ -1,14 +1,23 @@
 import asyncio
+from distutils.command.upload import upload
 import strawberry
+from strawberry.file_uploads import Upload
 from typing import List, Optional
 from fastapi import FastAPI
+from starlette.responses import StreamingResponse, Response
+
 from strawberry.fastapi import GraphQLRouter
 from fastapi.middleware.cors import CORSMiddleware
+
+import requests
+import os
+import cv2
+import psycopg2
+
 from src.repositories.BookRepo import BookRepo
 from src.repositories.UserRepo import UserRepo
 from src.models.User import User
 from src.models.Book import Book
-
 
 @strawberry.type
 class Query:
@@ -24,6 +33,22 @@ class Query:
     @strawberry.field
     def users(self) -> List[User]:
         return UserRepo().get_users()
+
+    @strawberry.field
+    def test_sad(self, text: str) -> str:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f'Bearer {os.environ["OPENAPI_KEY"]}',
+        }
+        data = (
+            r'{"model": "text-davinci-002", "prompt": "Sentence: \"'
+            + text
+            + r'\"\n% probability of extreme sadness:", "temperature": 0, "max_tokens": 120}'
+        )
+        r = requests.post(
+            "https://api.openai.com/v1/completions", headers=headers, data=data
+        )
+        return r.text
 
 
 @strawberry.type
@@ -42,18 +67,22 @@ class Subscription:
             await asyncio.sleep(0.5)
 
 
-schema = strawberry.Schema(
-    query=Query, mutation=Mutation, subscription=Subscription)
+app = FastAPI()
+
+
+@app.get("/images/{uuid}/{img_id}")
+async def get_image(uuid, img_id):
+    img = cv2.imread(img_id)
+    res, enc_img = cv2.imencode(".jpg", img)
+    return Response(enc_img.tobytes(), media_type="image/jpg")
+
+
+schema = strawberry.Schema(query=Query, mutation=Mutation, subscription=Subscription)
 
 graphql_app = GraphQLRouter(schema)
 
-app = FastAPI()
 
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-    "*"
-]
+origins = ["http://localhost", "http://localhost:8080", "*"]
 
 app.add_middleware(
     CORSMiddleware,

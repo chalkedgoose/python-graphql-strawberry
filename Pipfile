@@ -14,11 +14,16 @@ strawberry-graphql = {extras = ["fastapi"], version = "*"}
 asyncio = "*"
 httpx = "*"
 sqlalchemy = "*"
+requests = "*"
+opencv-python = "*"
+boto3 = "*"
+psycopg2 = "*"
 
 [dev-packages]
 autopep8 = "*"
 pytest = "*"
 pytest-asyncio = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.10"
