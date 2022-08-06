@@ -21,18 +21,16 @@ class Book:
 def get_books():
     return [
         Book(
-            title='The Great Gatsby',
-            author='F. Scott Fitzgerald',
+            title="The Great Gatsby",
+            author="F. Scott Fitzgerald",
         ),
-        Book(
-            title='Das Kapital',
-            author='Karl Marx'
-        ),
-        Book(
-            title='Animal Farm',
-            author='George Orwell'
-        )
+        Book(title="Das Kapital", author="Karl Marx"),
+        Book(title="Animal Farm", author="George Orwell"),
     ]
+
+
+def get_ranomd():
+    return [User("bob", 69)]
 
 
 @strawberry.type
@@ -51,6 +49,11 @@ class Query:
         v = "Carlos"
         return User("Carlos", age=22)
 
+    @strawberry.field
+    def test_sad(self, text: str) -> float:
+        # TODO: make requests
+        return 69.420
+
 
 @strawberry.type
 class Mutation:
@@ -68,18 +71,13 @@ class Subscription:
             await asyncio.sleep(0.5)
 
 
-schema = strawberry.Schema(
-    query=Query, mutation=Mutation, subscription=Subscription)
+schema = strawberry.Schema(query=Query, mutation=Mutation, subscription=Subscription)
 
 graphql_app = GraphQLRouter(schema)
 
 app = FastAPI()
 
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-    "*"
-]
+origins = ["http://localhost", "http://localhost:8080", "*"]
 
 app.add_middleware(
     CORSMiddleware,
