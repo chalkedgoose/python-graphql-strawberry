@@ -76,7 +76,7 @@ async def get_image(uuid, img_id):
     res, enc_img = cv2.imencode(".jpg", img)
     return Response(enc_img.tobytes(), media_type="image/jpg")
 
-
+#make a repo for submissions and models for other features
 schema = strawberry.Schema(query=Query, mutation=Mutation, subscription=Subscription)
 
 graphql_app = GraphQLRouter(schema)
