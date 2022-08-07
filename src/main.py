@@ -1,18 +1,16 @@
 import asyncio
 from distutils.command.upload import upload
-import strawberry
-from strawberry.file_uploads import Upload
 from typing import List, Optional
 from fastapi import FastAPI
-from starlette.responses import StreamingResponse, Response
+from starlette.responses import Response
 
-from strawberry.fastapi import GraphQLRouter
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import os
 import cv2
 import psycopg2
 import json
+from pydantic import BaseModel
 
 engine = psycopg2.connect(
     database=os.getenv("DB_NAME"),
@@ -21,6 +19,8 @@ engine = psycopg2.connect(
     host=os.getenv("DB_HOST"),
     port="5432",
 )
+
+class user
 
 app = FastAPI()
 
@@ -52,6 +52,11 @@ async def get_image(uuid, img_id):
     res, enc_img = cv2.imencode(".jpg", img)
 
     return Response(enc_img.tobytes(), media_type="image/jpg")
+
+@app.post("/new-user/")
+def new_user(username, password) {
+    
+}
 
 
 origins = ["http://localhost", "http://localhost:8080", "*"]
