@@ -1,0 +1,1 @@
+depressionSolved=> CREATE TABLE login (userid uuid DEFAULT uuid_generate_v1(), username TEXT UNIQUE, password TEXT);          

@@ -29,6 +29,26 @@ cursor = engine.cursor()
 cursor.execute(get_cena)
 uuid = cursor.fetchone()
 
+import requests
+import os
+import cv2
+import psycopg2
+import sys
+
+
+from src.repositories.BookRepo import BookRepo
+from src.repositories.SubmissionsRepo import SubmissionRepo
+from src.repositories.UserRepo import UserRepo
+
+from src.models.User import User
+from src.models.Book import Book
+from src.models.Submission import Submission
+
+sys.path.insert(1, "./src/")
+from images import make_folders
+
+make_folders()
+
 
 app = FastAPI()
 
@@ -56,6 +76,10 @@ def test_sad(text: str = "") -> str:
 
 @app.get("/images/{uuid}/{img_id}")
 async def get_image(uuid, img_id):
+    """
+    uuid is either "mechanims", "values", or unique user ID.
+    img_id the image number from the database. i.e from mech-id, values-id, image id in the user id folder
+    """
     img = cv2.imread(str(Path("./images", uuid, img_id)))
     res, enc_img = cv2.imencode(".jpg", img)
     return Response(enc_img.tobytes(), media_type="image/jpg")
