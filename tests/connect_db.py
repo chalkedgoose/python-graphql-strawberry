@@ -1,10 +1,12 @@
 import psycopg2
+import os
 
 # connect to database
 engine = psycopg2.connect(
-    database="depression-solved",
-    password="goodpass",
-    host="depression-solved.cro2y7qspvtf.us-east-2.rds.amazonaws.com",
+    database=os.getenv("DB_NAME"),
+    user="postgres",
+    password=os.getenv("POSTGRES_PASS"),
+    host=os.getenv("DB_HOST"),
     port="5432",
 )
 
