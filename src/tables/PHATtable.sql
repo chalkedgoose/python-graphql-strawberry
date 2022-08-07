@@ -1,1 +1,1 @@
-CREATE TABLE PHATtable (UUID int AUTO_INCREMENT, date BIGINT, IMG-filepath TEXT, MECH-ID1 int ,MECH-ID2 int ,MECH-ID3 int, VALUES-ID1 int , VALUES-ID2 int  , VALUES-ID3 int ,memoText TEXT, MemoGPTrating int );
+CREATE TABLE PHATtable (UUID TEXT PRIMARY KEY, date BIGINT, IMGfilepath TEXT, MECHID1 int ,MECHID2 int ,MECHID3 int, VALUESID1 int , VALUESID2 int  , VALUESID3 int ,memoText TEXT, MemoGPTrating int );

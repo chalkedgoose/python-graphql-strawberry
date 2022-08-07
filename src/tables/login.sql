@@ -1,2 +1,1 @@
-CREATE TABLE login (UUID int AUTO_INCREMENT, username TEXT, password TEXT);
-
+depressionSolved=> CREATE TABLE login (userid uuid DEFAULT uuid_generate_v1(), username TEXT UNIQUE, password TEXT);          
