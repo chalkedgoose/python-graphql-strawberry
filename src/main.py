@@ -1,8 +1,16 @@
 import asyncio
+
 from distutils.command.upload import upload
 import strawberry
 from strawberry.file_uploads import Upload
 from typing import List, Optional
+
+from dataclasses import asdict
+from distutils.command.upload import upload
+import strawberry
+from strawberry.file_uploads import Upload
+from typing import Dict, List, Optional
+
 from fastapi import FastAPI
 from starlette.responses import StreamingResponse, Response
 
@@ -37,46 +45,23 @@ except botocore.exceptions.ClientError as e:
     if error_code == "404":
         exists = False
 
-
-@strawberry.type
-class User:
-    name: str
-    age: int
-
-
-@strawberry.type
-class Book:
-    title: str
-    author: str
+import requests
+import os
+import cv2
+import psycopg2
 
 
-def get_books():
-    return [
-        Book(
-            title="The Great Gatsby",
-            author="F. Scott Fitzgerald",
-        ),
-        Book(title="Das Kapital", author="Karl Marx"),
-        Book(title="Animal Farm", author="George Orwell"),
-    ]
+from src.repositories.BookRepo import BookRepo
+from src.repositories.SubmissionsRepo import SubmissionRepo
+from src.repositories.UserRepo import UserRepo
+
+from src.models.User import User
+from src.models.Book import Book
+from src.models.Submission import Submission
 
 
 @strawberry.type
 class Query:
-    @strawberry.field
-    def books(self, title: Optional[str] = None) -> List[Book]:
-
-        if title is not None:
-            return [book for book in get_books() if book.title == title]
-
-        return get_books()
-
-    @strawberry.field
-    def user(self) -> User:
-        x = self
-        v = "Carlos"
-        return User("Carlos", age=22)
-
     @strawberry.field
     def test_sad(self, text: str) -> str:
         headers = {
@@ -109,7 +94,6 @@ class Subscription:
             yield i
             await asyncio.sleep(0.5)
 
-
 app = FastAPI()
 
 
@@ -123,7 +107,11 @@ async def get_image(uuid, img_id):
 
 schema = strawberry.Schema(query=Query, mutation=Mutation, subscription=Subscription)
 
-graphql_app = GraphQLRouter(schema)
+@app.get("/images/{uuid}/{img_id}")
+async def get_image(uuid, img_id):
+    img = cv2.imread(img_id)
+    res, enc_img = cv2.imencode(".jpg", img)
+    return Response(enc_img.tobytes(), media_type="image/jpg")
 
 
 origins = ["http://localhost", "http://localhost:8080", "*"]
@@ -136,4 +124,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(graphql_app, prefix="/graphql")
+
+@app.get("/submissions")
+def read_submissions():
+    return [asdict(x) for x in SubmissionRepo().get_submissions()]
