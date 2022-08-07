@@ -24,6 +24,8 @@ from src.models.User import User
 from src.models.Book import Book
 from src.models.Submission import Submission
 
+from images import make_folders
+make_folders()
 
 app = FastAPI()
 
