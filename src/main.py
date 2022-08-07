@@ -11,6 +11,7 @@ import cv2
 import psycopg2
 import json
 from pydantic import BaseModel
+from pathlib import Path
 
 engine = psycopg2.connect(
     database=os.getenv("DB_NAME"),
@@ -20,7 +21,14 @@ engine = psycopg2.connect(
     port="5432",
 )
 
-class user
+# John Cena login
+get_cena = (
+    "select userid from login where username = 'JohnCena' and password = 'badpass';"
+)
+cursor = engine.cursor()
+cursor.execute(get_cena)
+uuid = cursor.fetchone()
+
 
 app = FastAPI()
 
@@ -48,15 +56,9 @@ def test_sad(text: str = "") -> str:
 
 @app.get("/images/{uuid}/{img_id}")
 async def get_image(uuid, img_id):
-    img = cv2.imread(img_id)
+    img = cv2.imread(str(Path("./images", uuid, img_id)))
     res, enc_img = cv2.imencode(".jpg", img)
-
     return Response(enc_img.tobytes(), media_type="image/jpg")
-
-@app.post("/new-user/")
-def new_user(username, password) {
-    
-}
 
 
 origins = ["http://localhost", "http://localhost:8080", "*"]
