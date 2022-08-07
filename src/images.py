@@ -16,3 +16,7 @@ def make_folders():
     if not os.path.exists(mechanisms_path):
         os.makedirs(mechanisms_path)
         print("Directory '% s' created" % mechanisms_path)
+
+
+if __name__ == '__main__':
+    make_folders()
