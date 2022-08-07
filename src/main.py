@@ -12,6 +12,30 @@ import requests
 import os
 import cv2
 import psycopg2
+import boto3
+import botocore
+
+
+engine = psycopg2.connect(
+    database=os.getenv("DB_NAME"),
+    user="postgres",
+    password=os.getenv("POSTGRES_PASS"),
+    host=os.getenv("DB_HOST"),
+    port="5432",
+)
+
+
+s3 = boto3.resource("s3")
+bucket = s3.Bucket("memoimages")
+exists = True
+try:
+    s3.meta.client.head_bucket(Bucket="memoimages")
+except botocore.exceptions.ClientError as e:
+    # If a client error is thrown, then check that it was a 404 error.
+    # If it was a 404 error, then the bucket does not exist.
+    error_code = e.response["Error"]["Code"]
+    if error_code == "404":
+        exists = False
 
 
 @strawberry.type
@@ -93,6 +117,7 @@ app = FastAPI()
 async def get_image(uuid, img_id):
     img = cv2.imread(img_id)
     res, enc_img = cv2.imencode(".jpg", img)
+
     return Response(enc_img.tobytes(), media_type="image/jpg")
 
 
