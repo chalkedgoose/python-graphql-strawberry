@@ -3,6 +3,7 @@ from distutils.command.upload import upload
 from optparse import Values
 from typing import List, Optional
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from starlette.responses import Response
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -86,28 +87,52 @@ async def get_image(uuid, img_id):
     return Response(enc_img.tobytes(), media_type="image/jpg")
 
 
-@app.get("/random/{uuid}")
-async def get_rand_img(uuid):
+@app.get("/random/{uuid}/{_}")
+async def get_rand_img(uuid, _):
     p = Path("./images", uuid)
     images = os.listdir(str(p))
     full = p / random.choice(images)
-    img = cv2.imread(str(full))
-    res, enc_img = cv2.imencode(".jpg", img)
-    return Response(enc_img.tobytes(), media_type="image/jpg")
+    file = open(str(full), "rb")
+    enc_img = file.read()
+    file.close()
+    return Response(enc_img, media_type="image/jpg")
+
+
+@app.get("/random/{uuid}")
+async def get_rand_i(uuid):
+    p = Path("./images", uuid)
+    images = os.listdir(str(p))
+    full = p / random.choice(images)
+    file = open(str(full), "rb")
+    enc_img = file.read()
+    file.close()
+    return Response(enc_img, media_type="image/jpg")
 
 
 @app.get("/story/{page}")
 async def get_page(page):
-    get_values = "select memotext from PHATtable order by date;"
+    get_values = "select memotext from PHATtable order by date DESC;"
     cursor.execute(get_values)
     texts = cursor.fetchall()
     builder = {
         "mechanisms": ["/random/mechanisms"] * 3,
         "values": ["/random/values"] * 3,
         "bannerImg": "/random/user",
-        "journal": texts[int(page) % len(texts)][0],
+        "journal": texts[random.randint(0, len(texts)) - 1][0],
     }
-    return json.dumps(builder)
+    return builder
+
+
+@app.get("/review/{count}")
+async def gpt_review(count):
+    get_values = "select MemoGPTrating from PHATtable order by date DESC;"
+    if count != "all":
+        get_values = get_values[:-1] + f" limit {int(count)};"
+        print(get_values)
+    cursor.execute(get_values)
+    texts = cursor.fetchall()
+    texts = [text[0] for text in texts]
+    return texts
 
 
 origins = ["http://localhost", "http://localhost:8080", "*"]
